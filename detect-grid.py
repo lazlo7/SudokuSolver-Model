@@ -92,7 +92,6 @@ def detect_grid_numbers(file_path: str) -> list[np.matrix] | None:
 
     # Detect rows by the top-left corner point.
     corner_ps.sort(key=cmp_to_key(compare))
-    print(len(corner_ps))
 
     res = []
     row_ps = []
