@@ -92,32 +92,38 @@ def detect_grid_numbers(file_path: str) -> list[np.matrix] | None:
 
     # Detect rows by the top-left corner point.
     corner_ps.sort(key=cmp_to_key(compare))
+    print(len(corner_ps))
 
-    res = [ get_cell_image(masked_image, corner_ps[0][0], corner_ps[0][1]) ]
-    detected_in_row = 1
+    res = []
+    row_ps = []
     last_row_y = corner_ps[0][0][0]
+    detected_in_row = 0
 
-    for ps in corner_ps[1:]:
-        top_left_y = ps[0][0]
-
+    for ps in corner_ps:
+        top_left_y = ps[0][0] 
+ 
         if detected_in_row % CELLS_IN_ROW == 0:
             last_row_y = top_left_y
+            res.extend(sorted(row_ps, key=lambda ps: ps[0][1]))
+            row_ps.clear()
 
-        detected_in_row += 1
+        detected_in_row += 1       
 
         # The difference between two consecutive cell heights is too large - image is too skewed.
         if abs(top_left_y - last_row_y) > CELL_HEIGHTS_MAX_DIFFERENCE:
             return None
 
-        res.append(get_cell_image(masked_image, ps[0], ps[1]))
+        row_ps.append(ps)
 
-    return res
+    res.extend(sorted(row_ps, key=lambda ps: ps[0][1]))
+    return [ get_cell_image(masked_image, ps[0], ps[1]) for ps in res ]
 
 def print_number(image: np.ndarray):
     mask = "@=-."
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
-            print(mask[round(256 * image[i, j]) // (256 // len(mask))], end="")
+            image_norm = 0.5 * (-image[i, j] + 1)
+            print(mask[round(255 * image_norm) // (256 // len(mask))], end="")
         print()
 
 def print_grid(numbers: list[int]):
