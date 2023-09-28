@@ -36,6 +36,8 @@ def get_cell_image(image: cv2.UMat, top_left: np.ndarray, bottom_right: np.ndarr
             v = 1 - v
             if v < 0.6:
                 v = 0
+            # Amplify larger values, keeping the range.
+            v = min(1.0, 1.6 * v**2)
             max_value = max(max_value, v)
             # Convert to pytorch's model range (-1, 1).
             v = 2 * (v - 0.5)
